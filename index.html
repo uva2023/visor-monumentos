@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Monumentos</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Visor de monumentos de Castilla y León</h1>
+    </header>
+    
+    <div class="container">     
+        <div class="box formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label for="descripcionInput">Descripción</label>
+                <input type="text" id="descripcionInput" placeholder="Descripción" 
+                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+            </div>
+            
+            <div class="field col-12 md:col-6">
+                <label for="tipoInput">Tipo monumento</label>
+                <input type="text" id="tipoInput" placeholder="Tipo monumento"
+                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+            </div>
+    
+            <div class="field col-12 md:col-6">
+                <label for="provinciaInput">Provincia</label>
+                <input type="text" id="provinciaInput" placeholder="Provincia"
+                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+            </div>
+    
+            <div class="field col-12 md:col-6">
+                <label for="municipioInput">Municipio</label>
+                <input type="text" id="municipioInput" placeholder="Municipio"
+                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
+            </div>
+    
+            <div class="col-12 md:col-6">
+                <button id="boton-filtrar"
+                class="bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700">Filtrar</button>
+                <button id="boton-limpiar"
+                class="bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700">Limpiar</button>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="col-12 md:col-6 lg:col-6 xl:col-6">
+                <div class="box">
+                    <div id="map"></div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-6 xl:col-6">
+                <div class="box">
+                    <div id="total-monumentos" class="box-header"></div>
+                    <div id="info"> </div>
+                    
+                </div>
+
+                <div class="box">
+                    <div class="box-header">Cantidad de monumentos por tipo</div>
+                    <div >
+                        <canvas id="myChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>   
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

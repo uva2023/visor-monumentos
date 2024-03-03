@@ -1,0 +1,37 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    padding: 20px;
+}
+
+.box {
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.box-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#map {
+    height: 500px;
+}
+
+.custom-marker i {
+    background-color: transparent; /* Hace que el fondo del icono sea transparente */
+    color: #000; /* Cambia el color del icono si es necesario */
+}
