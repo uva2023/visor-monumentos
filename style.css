@@ -11,10 +11,6 @@ header {
     text-align: center;
 }
 
-.container {
-    padding: 20px;
-}
-
 .box {
     background-color: #f4f4f4;
     border: 1px solid #ccc;

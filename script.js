@@ -1,13 +1,41 @@
 var monumentos; // Definir monumentos como variable global
 
 var tiposMonumentos = {
-    "Yacimientos arqueológicos": "fas fa-archway",
-    "Monasterios": "fas fa-church",
+    "Casas Consistoriales": "fas fa-building",
+    "Casas Nobles": "fas fa-home",
     "Castillos": "fab fa-fort-awesome",
-    // Agregar más tipos de monumentos..
+    "Catedrales": "fas fa-church",
+    "Conjunto Etnológico": "fas fa-warehouse",
+    "Cruceros": "fas fa-cross",
+    "Esculturas": "fas fa-snowman",
+    "Fuentes": "fas fa-faucet",
+    "Hórreos": "fas fa-warehouse",
+    "Iglesias y Ermitas": "fas fa-church",
+    "Jardín Histórico": "fas fa-tree",
+    "Molinos": "fas fa-fan",
+    "Monasterios": "fas fa-church",
+    "Murallas y puertas": "fas fa-archway",
+    "Otros edificios": "fas fa-building",
+    "Palacios": "fas fa-place-of-worship",
+    "Paraje pintoresco": "fas fa-mountain",
+    "Plazas Mayores": "fas fa-vector-square",
+    "Puentes": "fas fa-road",
+    "Reales Sitios": "fas fa-crown",
+    "Santuarios": "fas fa-place-of-worship",
+    "Sinagogas": "fas fa-synagogue",
+    "Sitio Histórico": "fas fa-landmark",
+    "Torres": "fas fa-chess-rock",
+    "Yacimientos arqueológicos": "fas fa-archway"
 };
 
 var myChart;
+
+// Variable para almacenar los marcadores
+var marcadores = L.markerClusterGroup();
+
+var provincias = [];
+var municipios = [];
+var tipos = [];
 
 document.addEventListener("DOMContentLoaded", function () {
     // Crear mapa
@@ -19,18 +47,14 @@ document.addEventListener("DOMContentLoaded", function () {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Variable para almacenar los marcadores
-    var marcadores = [];
 
     // Función para agregar marcadores
     function agregarMarcadores(monumentosData) {
-        // Eliminar marcadores existentes antes de agregar nuevos
-        marcadores.forEach(function(marker) {
-            map.removeLayer(marker);
-        });
-        marcadores = [];
 
-        monumentosData.results.forEach(function (monumento) {
+        marcadores.clearLayers();
+
+       // monumentosData.results.forEach(function (monumento) {
+        monumentosData.forEach(function (monumento) {
 
             var icono = tiposMonumentos[monumento.tipomonumento];
             var marker = null;
@@ -42,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         iconAnchor: [16, 32], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
                         className: 'custom-marker' // Clase de estilo personalizado para el marcador
                     })     
-                }).addTo(map);
+                });
             } else {
                 marker = L.marker([monumento.coordenadas_latitud, monumento.coordenadas_longitud], {
                     icon: L.divIcon({
@@ -51,20 +75,73 @@ document.addEventListener("DOMContentLoaded", function () {
                         iconAnchor: [16, 32], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
                         className: 'custom-marker' // Clase de estilo personalizado para el marcador
                     })    
-                }).addTo(map);
+                });
             }
 
             marker.bindPopup('<b>' + monumento.nombre + '</b><br>' + monumento.poblacion_municipio + ', ' + monumento.poblacion_provincia);
             marker.on('click', function () {
                 mostrarInformacionMonumento(monumento);
             });
-            marcadores.push(marker);
+            marcadores.addLayer(marker);
+        });
+        map.addLayer(marcadores);
+    }
+
+    function cargarProvincias(provincias) {
+        var provinciaSelect = document.getElementById("provinciaSelect");
+
+        provincias.results.forEach(function(provinciaData) {
+            var provincia = provinciaData.provincia;
+            var option = document.createElement("option");
+            option.value = provincia;
+            option.textContent = provincia;
+            provinciaSelect.appendChild(option);
         });
     }
 
+    function cargarTipos(tipos) {
+        var tipoSelect = document.getElementById("tipoSelect");
+
+        tipos.results.forEach(function(tipoData) {
+            var tipo = tipoData.tipomonumento;
+            var option = document.createElement("option");
+            option.value = tipo;
+            option.textContent = tipo;
+            tipoSelect.appendChild(option);
+        });
+    }
+
+    function cargarMunicipios() {
+        
+        const provincia = document.getElementById('provinciaSelect').value;
+
+
+        fetch(`https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/registro-de-municipios-de-castilla-y-leon/records?select=municipio&where=provincia%20like%20%27${provincia}%27&group_by=municipio&limit=-1`)
+            .then(response => response.json())
+            .then(data => {
+                municipios = data;
+
+                const municipioSelect = document.getElementById('municipioSelect');
+
+                municipios.results.forEach(function(municipioData) {
+                    var municipio = municipioData.municipio;
+                    var option = document.createElement("option");
+                    option.value = municipio;
+                    option.textContent = municipio;
+                    municipioSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar los municipios:', error);
+            });
+    }
+
+    document.getElementById('provinciaSelect').addEventListener('change', cargarMunicipios);
+
     // Función para obtener los datos de la API
     function obtenerDatos() {
-        fetch('https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/relacion-monumentos/records?limit=75')
+        //fetch('https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/relacion-monumentos/records?limit=-1')
+        fetch('relacion-monumentos.json')
             .then(response => response.json())
             .then(data => {
                 monumentos = data; // Asignar los datos a la variable global monumentos
@@ -77,16 +154,41 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error('Error al obtener los datos:', error);
             });
+
+        fetch('https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/registro-de-municipios-de-castilla-y-leon/records?select=provincia&group_by=provincia&limit=-1')
+        .then(response => response.json())
+        .then(data => {
+            provincias = data; // Asignar los datos a la variable global monumentos
+            console.log(provincias)
+            cargarProvincias(provincias)
+        })
+        .catch(error => {
+            console.error('Error al obtener los datos:', error);
+        });
+
+        fetch('https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/relacion-monumentos/records?select=tipomonumento&group_by=tipomonumento&limit=-1')
+        .then(response => response.json())
+        .then(data => {
+            tipos = data; // Asignar los datos a la variable global monumentos
+            console.log(tipos)
+            cargarTipos(tipos)
+        })
+        .catch(error => {
+            console.error('Error al obtener los datos:', error);
+        });
     }
 
     // Función para mostrar información del monumento seleccionado
     function mostrarInformacionMonumento(monumento) {
         var infoMonumento = document.getElementById('info');
         infoMonumento.innerHTML = ''; // Limpiar cualquier contenido existente en el div 'info'
-        infoMonumento.innerHTML = '<h2>' + monumento.nombre + '</h2>' +
-                                '<p>Provincia: ' + monumento.poblacion_provincia + '</p>' +
-                                '<p>Municipio: ' + monumento.poblacion_municipio + '</p>' +
-                                '<p class="text-justify">Descripción: ' + monumento.descripcion + '</p>';
+        infoMonumento.innerHTML = '<h2>' + monumento.nombre + ' ('  + monumento.poblacion_municipio + ', ' + monumento.poblacion_provincia + ')' + '</h2>';
+        // Verificar si monumento.calle no es nulo ni está indefinido
+        if (monumento.calle !== null && monumento.calle !== undefined) {
+            // Agregar la dirección al HTML
+            infoMonumento.innerHTML += '<p class="text-justify"> Dirección: ' + monumento.calle + '</p>';
+        }
+       infoMonumento.innerHTML += '<p class="text-justify">' + monumento.descripcion + '</p>';
     }
 
     
@@ -94,46 +196,72 @@ document.addEventListener("DOMContentLoaded", function () {
     // Función para mostrar el total de monumentos
     function mostrarTotalMonumentos(monumentosData) {
         var totalElemento = document.getElementById('total-monumentos');
-        totalElemento.textContent = 'Total de monumentos: ' + monumentosData.total_count;
+        totalElemento.textContent = 'Total de monumentos: ' + monumentosData.length;
     }
 
-    // Función para mostrar la lista de monumentos
-    function mostrarMonumentosNombres(monumentosData) {
-        monumentosNombres = monumentosData.results.map(monumento => monumento.nombre).slice(0, 10); // Obtener los nombres de los primeros 10 monumentos
+    var startIndex = 0; // Índice inicial para mostrar los monumentos
 
-        var listaNombres = document.createElement('lista-nombres');
-        monumentosNombres.forEach(function(nombre) {
-            var listItem = document.createElement('li');
-            listItem.textContent = nombre;
-            listaNombres.appendChild(listItem);
+// Función para mostrar la lista de monumentos
+function mostrarMonumentosNombres(monumentosData) {
+    var listaNombres = document.createElement('ul'); // Crear una lista desordenada
+    listaNombres.id = 'lista-nombres'; // Asignar un ID a la lista
+
+    // Iterar sobre los 10 monumentos a mostrar
+    for (var i = startIndex; i < Math.min(startIndex + 10, monumentosData.length); i++) {
+        var monumento = monumentosData[i]; // Obtener el monumento en la posición actual
+
+        var listItem = document.createElement('li'); // Crear un elemento de lista
+        listItem.textContent = monumento.nombre; // Establecer el texto del elemento de lista
+        listItem.addEventListener('click', function() { // Agregar un evento de clic al elemento de lista
+            // Centrar el mapa en las coordenadas del monumento
+            map.setView([monumento.coordenadas_latitud, monumento.coordenadas_longitud], 15);
+            // Mostrar la información del monumento en el panel de información
+            mostrarInformacionMonumento(monumento);
         });
-
-        var infoDiv = document.getElementById('info'); // Obtener el div 'info'
-        infoDiv.innerHTML = ''; // Limpiar cualquier contenido existente en el div 'info'
-        infoDiv.appendChild(listaNombres);
+        listaNombres.appendChild(listItem); // Agregar el elemento de lista a la lista desordenada
     }
+
+    var infoDiv = document.getElementById('info'); // Obtener el div 'info'
+    infoDiv.innerHTML = ''; // Limpiar cualquier contenido existente en el div 'info'
+    infoDiv.appendChild(listaNombres); // Agregar la lista desordenada al div 'info'
+
+    // Mostrar un botón para cargar más monumentos si quedan más de 10 por mostrar
+    if (startIndex + 10 < monumentosData.length) {
+        var cargarMasButton = document.createElement('button'); // Crear un botón
+        cargarMasButton.textContent = 'Cargar más'; // Establecer el texto del botón
+        cargarMasButton.addEventListener('click', function() { // Agregar un evento de clic al botón
+            startIndex += 10; // Incrementar el índice inicial
+            mostrarMonumentosNombres(monumentosData); // Volver a mostrar la lista de monumentos
+        });
+        infoDiv.appendChild(cargarMasButton); // Agregar el botón al div 'info'
+    }
+}
 
     // Función para filtrar monumentos
     function filtrarMonumentos() {
-        var provincia = document.getElementById('provinciaInput').value.toLowerCase();
-        var municipio = document.getElementById('municipioInput').value.toLowerCase();
+        var provincia = document.getElementById('provinciaSelect').value.toLowerCase();
+        var municipio = document.getElementById('municipioSelect').value.toLowerCase();
         var descripcion = document.getElementById('descripcionInput').value.toLowerCase();
-        var tipomonumento = document.getElementById('tipoInput').value.toLowerCase();
+        var tipomonumento = document.getElementById('tipoSelect').value.toLowerCase();
 
-        var monumentosFiltrados = monumentos.results.filter(function (monumento) {
-            return (monumento.poblacion_provincia.toLowerCase().includes(provincia) &&
-                    monumento.poblacion_municipio.toLowerCase().includes(municipio) &&
-                    monumento.descripcion.toLowerCase().includes(descripcion)) &&
-                    monumento.tipomonumento.toLowerCase().includes(tipomonumento);
+        //var monumentosFiltrados = monumentos.results.filter(function (monumento) {
+        var monumentosFiltrados = monumentos.filter(function (monumento) {
+
+            var provinciaValida = !provincia || (monumento.poblacion_provincia && monumento.poblacion_provincia.toLowerCase().includes(provincia));
+            var municipioValido = !municipio || (monumento.poblacion_municipio && monumento.poblacion_municipio.toLowerCase().includes(municipio));
+            var descripcionValida = !descripcion || (monumento.descripcion && monumento.descripcion.toLowerCase().includes(descripcion));
+            var tipomonumentoValido = !tipomonumento || (monumento.tipomonumento && monumento.tipomonumento.toLowerCase().includes(tipomonumento));
+
+            return provinciaValida && municipioValido && descripcionValida && tipomonumentoValido;
         });
         console.log(monumentosFiltrados)
-        var resultsFiltados = { total_count: monumentosFiltrados.length,
-                                results: monumentosFiltrados };
-        console.log(resultsFiltados)
-        agregarMarcadores(resultsFiltados); // Agregar marcadores filtrados
-        mostrarTotalMonumentos(resultsFiltados);
-        mostrarMonumentosNombres(resultsFiltados);
-        crearGraficoTiposMonumento(resultsFiltados);
+        //var resultsFiltados = { total_count: monumentosFiltrados.length,
+        //                        results: monumentosFiltrados };
+        console.log(monumentosFiltrados)
+        agregarMarcadores(monumentosFiltrados); // Agregar marcadores filtrados
+        mostrarTotalMonumentos(monumentosFiltrados);
+        mostrarMonumentosNombres(monumentosFiltrados);
+        crearGraficoTiposMonumento(monumentosFiltrados);
     }
 
     // Función para crear el gráfico de monumentos por tipo
@@ -146,7 +274,8 @@ document.addEventListener("DOMContentLoaded", function () {
         var tiposMonumento = {}; // Objeto para almacenar la cantidad de monumentos por tipo
 
         // Contar la cantidad de monumentos por tipo
-        monumentosData.results.forEach(function(monumento) {
+       // monumentosData.results.forEach(function(monumento) {
+        monumentosData.forEach(function(monumento) {
             var tipo = monumento.tipomonumento;
             tiposMonumento[tipo] = tiposMonumento[tipo] ? tiposMonumento[tipo] + 1 : 1;
         });
@@ -186,10 +315,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // Función para limpiar filtros y obtener los datos sin filtrar
     function limpiarFiltros() {
         // Limpiar valores de los elementos de filtro
-        document.getElementById('provinciaInput').value = '';
-        document.getElementById('municipioInput').value = '';
+        document.getElementById('provinciaSelect').value = '';
+        const municipioSelect = document.getElementById('municipioSelect');
+        // Limpiar la lista desplegable de municipios
+        municipioSelect.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Selecciona un municipio';
+        municipioSelect.appendChild(defaultOption);
+
         document.getElementById('descripcionInput').value = '';
-        document.getElementById('tipoInput').value = '';
+        document.getElementById('tipoSelect').value = '';
 
         // Obtener nuevamente los datos sin filtrar
         obtenerDatos();
