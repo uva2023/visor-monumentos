@@ -51,42 +51,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Función para agregar marcadores
     function agregarMarcadores(monumentosData) {
-
         marcadores.clearLayers();
-
-       // monumentosData.results.forEach(function (monumento) {
+    
         monumentosData.forEach(function (monumento) {
-
-            var icono = tiposMonumentos[monumento.tipomonumento];
-            var marker = null;
-            if (icono) {
-                marker = L.marker([monumento.coordenadas_latitud, monumento.coordenadas_longitud], {
-                    icon: L.divIcon({
-                        html: '<i class="' + icono + '"></i>',
-                        iconSize: [64, 64], // Duplica el tamaño del icono
-                        iconAnchor: [32, 64], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
-                        className: 'custom-marker' // Clase de estilo personalizado para el marcador
-                    })                      
-                });
-            } else {
-                marker = L.marker([monumento.coordenadas_latitud, monumento.coordenadas_longitud], {
-                    icon: L.divIcon({
-                        html: '<i class="' + icono + '"></i>',
-                        iconSize: [64, 64], // Duplica el tamaño del icono
-                        iconAnchor: [32, 64], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
-                        className: 'custom-marker' // Clase de estilo personalizado para el marcador
-                    })                       
-                });
-            }
-
-            marker.bindPopup('<b>' + monumento.nombre + '</b><br>' + 
-            'Población: ' + monumento.poblacion_municipio + ', ' + monumento.poblacion_provincia + '<br>' +
-            'Coordenadas: ' + monumento.coordenadas_latitud + ', ' + monumento.coordenadas_longitud);
+            var icono = tiposMonumentos[monumento.tipomonumento] || ''; // Icono por defecto en caso de no encontrar uno específico
+    
+            var marker = L.marker([monumento.coordenadas_latitud, monumento.coordenadas_longitud], {
+                icon: L.divIcon({
+                    html: '<i class="' + icono + '"></i>',
+                    iconSize: [64, 64], // Tamaño del icono
+                    iconAnchor: [32, 64], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
+                    className: 'custom-marker' // Clase de estilo personalizado para el marcador
+                })
+            });
+    
+            marker.bindPopup('<b>' + monumento.nombre + '</b><br>' +
+                'Población: ' + monumento.poblacion_municipio + ', ' + monumento.poblacion_provincia + '<br>' +
+                'Coordenadas: ' + monumento.coordenadas_latitud + ', ' + monumento.coordenadas_longitud);
+    
             marker.on('click', function () {
                 mostrarInformacionMonumento(monumento);
             });
+    
             marcadores.addLayer(marker);
         });
+    
         map.addLayer(marcadores);
     }
 
@@ -160,7 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 mostrarTotalMonumentos(monumentos);
                 mostrarMonumentosNombres(monumentos);
                 crearGraficoTiposMonumentoBarras(monumentos);
-                //crearGraficoTiposMonumentoLineas(monumentosFiltrados);
             })
             .catch(error => {
                 console.error('Error al obtener los datos:', error);
@@ -191,6 +179,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Función para mostrar información del monumento seleccionado
     function mostrarInformacionMonumento(monumento) {
+        ocultarTotalMonumentos()
+
         var infoMonumento = document.getElementById('info');
         infoMonumento.innerHTML = ''; // Limpiar cualquier contenido existente en el div 'info'
         infoMonumento.innerHTML = '<h2>' + monumento.nombre + ' ('  + monumento.poblacion_municipio + ', ' + monumento.poblacion_provincia + ')' + '</h2>';
@@ -202,15 +192,20 @@ document.addEventListener("DOMContentLoaded", function () {
        infoMonumento.innerHTML += '<p class="text-justify">' + monumento.descripcion + '</p>';
     }
 
-    
-
     // Función para mostrar el total de monumentos
     function mostrarTotalMonumentos(monumentosData) {
         var totalElemento = document.getElementById('total-monumentos');
+        totalElemento.style.display = 'block'; // Asegurarse de que esté visible
         totalElemento.textContent = 'Total de monumentos: ' + monumentosData.length;
     }
 
-    var startIndex = 0; // Índice inicial para mostrar los monumentos
+    // Función para ocultar el total de monumentos
+    function ocultarTotalMonumentos() {
+        var totalElemento = document.getElementById('total-monumentos');
+        totalElemento.style.display = 'none'; // Ocultar el elemento
+    }
+
+var startIndex = 0; // Índice inicial para mostrar los monumentos
 
 // Función para mostrar la lista de monumentos
 function mostrarMonumentosNombres(monumentosData) {
@@ -335,53 +330,6 @@ function mostrarMonumentosNombres(monumentosData) {
             options: options
         });
     }
-
-    /*function crearGraficoTiposMonumentoLineas(monumentosData) {
-        if (myChart2) {
-            myChart2.destroy();
-        }
-    
-        var tiposMonumento = {}; // Objeto para almacenar la cantidad de monumentos por tipo
-    
-        // Contar la cantidad de monumentos por tipo
-        monumentosData.forEach(function(monumento) {
-            var tipo = monumento.tipomonumento;
-            tiposMonumento[tipo] = tiposMonumento[tipo] ? tiposMonumento[tipo] + 1 : 1;
-        });
-    
-        // Configuración de los datos del gráfico
-        var data = {
-            labels: Object.keys(tiposMonumento),
-            datasets: [{
-                label: 'Número de monumentos',
-                data: Object.values(tiposMonumento),
-                backgroundColor: "#686868",
-                borderColor: "#686868",
-                borderWidth: 1
-            }]
-        };
-    
-        // Configuración del gráfico
-        var options = {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-            responsive: true, // Hacer el gráfico responsive
-            maintainAspectRatio: false // Permitir que el gráfico se ajuste al contenedor sin mantener una relación de aspecto fija
-        };
-    
-        // Obtener el contexto del canvas
-        var ctx = document.getElementById('myChart2').getContext('2d');
-    
-        // Crear el gráfico de líneas
-        myChart1 = new Chart(ctx, {
-            type: 'line', // Cambiar el tipo de gráfico a líneas
-            data: data,
-            options: options
-        });
-    }*/
 
     // Función para limpiar filtros y obtener los datos sin filtrar
     function limpiarFiltros() {
