@@ -28,7 +28,8 @@ var tiposMonumentos = {
     "Yacimientos arqueológicos": "fas fa-archway"
 };
 
-var myChart;
+var myChart1;
+//var myChart2;
 
 // Variable para almacenar los marcadores
 var marcadores = L.markerClusterGroup();
@@ -62,19 +63,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 marker = L.marker([monumento.coordenadas_latitud, monumento.coordenadas_longitud], {
                     icon: L.divIcon({
                         html: '<i class="' + icono + '"></i>',
-                        iconSize: [32, 32], // Tamaño del icono
-                        iconAnchor: [16, 32], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
+                        iconSize: [64, 64], // Duplica el tamaño del icono
+                        iconAnchor: [32, 64], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
                         className: 'custom-marker' // Clase de estilo personalizado para el marcador
-                    })     
+                    })                      
                 });
             } else {
                 marker = L.marker([monumento.coordenadas_latitud, monumento.coordenadas_longitud], {
                     icon: L.divIcon({
-                        html: '<i class="fas fa-map-marker-alt"></i>',
-                        iconSize: [32, 32], // Tamaño del icono
-                        iconAnchor: [16, 32], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
+                        html: '<i class="' + icono + '"></i>',
+                        iconSize: [64, 64], // Duplica el tamaño del icono
+                        iconAnchor: [32, 64], // Punto de anclaje del icono, coincidiendo con la parte inferior del marcador
                         className: 'custom-marker' // Clase de estilo personalizado para el marcador
-                    })    
+                    })                       
                 });
             }
 
@@ -112,17 +113,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function cargarMunicipios() {
-        
         const provincia = document.getElementById('provinciaSelect').value;
-
-
+    
         fetch(`https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/registro-de-municipios-de-castilla-y-leon/records?select=municipio&where=provincia%20like%20%27${provincia}%27&group_by=municipio&limit=-1`)
             .then(response => response.json())
             .then(data => {
                 municipios = data;
-
+    
                 const municipioSelect = document.getElementById('municipioSelect');
-
+                
+                // Limpiar el select antes de agregar los nuevos municipios
+                municipioSelect.innerHTML = '';
+    
+                // Agregar la opción "Selecciona un municipio"
+                var selectOption = document.createElement("option");
+                selectOption.value = "";
+                selectOption.textContent = "Selecciona un municipio";
+                municipioSelect.appendChild(selectOption);
+    
                 municipios.results.forEach(function(municipioData) {
                     var municipio = municipioData.municipio;
                     var option = document.createElement("option");
@@ -149,7 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 agregarMarcadores(monumentos);
                 mostrarTotalMonumentos(monumentos);
                 mostrarMonumentosNombres(monumentos);
-                crearGraficoTiposMonumento(monumentos);
+                crearGraficoTiposMonumentoBarras(monumentos);
+                //crearGraficoTiposMonumentoLineas(monumentosFiltrados);
             })
             .catch(error => {
                 console.error('Error al obtener los datos:', error);
@@ -229,6 +238,7 @@ function mostrarMonumentosNombres(monumentosData) {
     if (startIndex + 10 < monumentosData.length) {
         var cargarMasButton = document.createElement('button'); // Crear un botón
         cargarMasButton.textContent = 'Cargar más'; // Establecer el texto del botón
+        cargarMasButton.className = 'bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700'; // Agregar la clase CSS al botón
         cargarMasButton.addEventListener('click', function() { // Agregar un evento de clic al botón
             startIndex += 10; // Incrementar el índice inicial
             mostrarMonumentosNombres(monumentosData); // Volver a mostrar la lista de monumentos
@@ -261,25 +271,82 @@ function mostrarMonumentosNombres(monumentosData) {
         agregarMarcadores(monumentosFiltrados); // Agregar marcadores filtrados
         mostrarTotalMonumentos(monumentosFiltrados);
         mostrarMonumentosNombres(monumentosFiltrados);
-        crearGraficoTiposMonumento(monumentosFiltrados);
+        crearGraficoTiposMonumentoBarras(monumentosFiltrados);
+       // crearGraficoTiposMonumentoLineas(monumentosFiltrados);
     }
 
     // Función para crear el gráfico de monumentos por tipo
-    function crearGraficoTiposMonumento(monumentosData) {
+    function crearGraficoTiposMonumentoBarras(monumentosData) {
 
-        if (myChart) {
-            myChart.destroy();
+        if (myChart1) {
+            myChart1.destroy();
         }
-
+    
         var tiposMonumento = {}; // Objeto para almacenar la cantidad de monumentos por tipo
-
+    
         // Contar la cantidad de monumentos por tipo
-       // monumentosData.results.forEach(function(monumento) {
         monumentosData.forEach(function(monumento) {
             var tipo = monumento.tipomonumento;
             tiposMonumento[tipo] = tiposMonumento[tipo] ? tiposMonumento[tipo] + 1 : 1;
         });
+    
+        // Configuración de los datos del gráfico
+        var data = {
+            labels: Object.keys(tiposMonumento),
+            datasets: [
+                {
+                    label: 'Número de monumentos (Barras)',
+                    data: Object.values(tiposMonumento),
+                    backgroundColor: "#686868",
+                    borderColor: "#686868",
+                    borderWidth: 1,
+                    type: 'bar' // Tipo de gráfico: barras
+                },
+                {
+                    label: 'Número de monumentos (Línea)',
+                    data: Object.values(tiposMonumento),
+                    borderColor: "#686868",
+                    borderWidth: 2,
+                    type: 'line' // Tipo de gráfico: línea
+                }
+            ]
+        };
+    
+        // Configuración del gráfico
+        var options = {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            responsive: true, // Hacer el gráfico responsive
+            maintainAspectRatio: false // Permitir que el gráfico se ajuste al contenedor sin mantener una relación de aspecto fija
+        };
+    
+        // Obtener el contexto del canvas
+        var ctx = document.getElementById('myChart1').getContext('2d');
+    
+        // Crear el gráfico mixto de barras y líneas
+        myChart1 = new Chart(ctx, {
+            type: 'bar', // Tipo de gráfico inicial: barras
+            data: data,
+            options: options
+        });
+    }
 
+    /*function crearGraficoTiposMonumentoLineas(monumentosData) {
+        if (myChart2) {
+            myChart2.destroy();
+        }
+    
+        var tiposMonumento = {}; // Objeto para almacenar la cantidad de monumentos por tipo
+    
+        // Contar la cantidad de monumentos por tipo
+        monumentosData.forEach(function(monumento) {
+            var tipo = monumento.tipomonumento;
+            tiposMonumento[tipo] = tiposMonumento[tipo] ? tiposMonumento[tipo] + 1 : 1;
+        });
+    
         // Configuración de los datos del gráfico
         var data = {
             labels: Object.keys(tiposMonumento),
@@ -291,34 +358,41 @@ function mostrarMonumentosNombres(monumentosData) {
                 borderWidth: 1
             }]
         };
-
+    
         // Configuración del gráfico
         var options = {
             scales: {
                 y: {
                     beginAtZero: true
                 }
-            }
+            },
+            responsive: true, // Hacer el gráfico responsive
+            maintainAspectRatio: false // Permitir que el gráfico se ajuste al contenedor sin mantener una relación de aspecto fija
         };
-
-       // Obtener el contexto del canvas
-        var ctx = document.getElementById('myChart').getContext('2d');
-
-        // Crear el gráfico de barras
-        myChart = new Chart(ctx, {
-            type: 'bar',
+    
+        // Obtener el contexto del canvas
+        var ctx = document.getElementById('myChart2').getContext('2d');
+    
+        // Crear el gráfico de líneas
+        myChart1 = new Chart(ctx, {
+            type: 'line', // Cambiar el tipo de gráfico a líneas
             data: data,
             options: options
         });
-    }
+    }*/
 
     // Función para limpiar filtros y obtener los datos sin filtrar
     function limpiarFiltros() {
         // Limpiar valores de los elementos de filtro
-        document.getElementById('provinciaSelect').value = '';
+        const provinciaSelect = document.getElementById('provinciaSelect');
+        provinciaSelect.innerHTML = '';
+
+        provinciaSelect.value = '';
+
         const municipioSelect = document.getElementById('municipioSelect');
         // Limpiar la lista desplegable de municipios
         municipioSelect.innerHTML = '';
+        municipioSelect.value = '';
 
         const defaultOption = document.createElement('option');
         defaultOption.value = '';

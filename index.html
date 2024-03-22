@@ -22,76 +22,81 @@
     <header>
         <h1>Visor de monumentos de Castilla y León</h1>
     </header>
-        
-    <div class="grid p-2">
-        <div class="field grid col-12 md:col-6 ">
-            <label for="descripcionInput" class="col-12 mb-2 md:col-2 md:mb-0">Descripción</label>
-            <div class="col-12 md:col-10">
-                <input type="text" id="descripcionInput" placeholder="Descripción" 
-                class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
-            </div>
-        </div>
-
-        <div class="field grid col-12 md:col-6">
-            <label for="tipoSelect" class="col-12 mb-2 md:col-2 md:mb-0">Tipo monumento</label>
-            <div class="col-12 md:col-10">
-                <select id="tipoSelect"
-                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
-                    <option value="">Selecciona un tipo monumento</option>
-                </select>                   
-            </div>
-        </div>
-        
-        <div class="field grid col-12 md:col-6">
-            <label for="provinciaSelect" class="col-12 mb-2 md:col-2 md:mb-0">Provincia</label>
-            <div class="col-12 md:col-10">
-                <select id="provinciaSelect"
-                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
-                    <option value="">Selecciona una provincia</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="field grid col-12 md:col-6">
-            <label for="municipioSelect" class="col-12 mb-2 md:col-2 md:mb-0">Municipio</label>
-            <div class="col-12 md:col-10">
-                <select id="municipioSelect"
-                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full">
-                    <option value="">Selecciona un municipio</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="col-12 md:col-6">
-            <button id="boton-filtrar"
-            class="bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700">Filtrar</button>
-            <button id="boton-limpiar"
-            class="bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700">Limpiar</button>
-        </div>
-    </div>
-        
-    <div class="grid">
-        <div class="col-12 md:col-6 lg:col-6 xl:col-6">
-            <div class="box">
-                <div id="map"></div>
-            </div>
-        </div>
-        <div class="col-12 md:col-6 lg:col-6 xl:col-6">
-            <div class="box">
-                <div id="total-monumentos" class="box-header"></div>
-                <div id="info"> </div>
-                
-            </div>
-
-            <div class="box">
-                <div class="box-header">Cantidad de monumentos por tipo</div>
-                <div >
-                    <canvas id="myChart" height="100"></canvas>
+   
+    <div class="content">
+        <div class="grid">
+            <div class="field grid col-12 md:col-6 ">
+                <label for="descripcionInput" class="col-12 mb-2 md:col-2 md:mb-0">Descripción</label>
+                <div class="col-12 md:col-10">
+                    <input type="text" id="descripcionInput" placeholder="Descripción" 
+                    class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-auto" >
                 </div>
             </div>
+    
+            <div class="field grid col-12 md:col-6">
+                <label for="tipoSelect" class="col-12 mb-2 md:col-2 md:mb-0">Tipo monumento</label>
+                <div class="col-12 md:col-10">
+                    <select id="tipoSelect"
+                        class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-auto">
+                        <option value="">Selecciona un tipo monumento</option>
+                    </select>                   
+                </div>
+            </div>
+            
+            <div class="field grid col-12 md:col-6">
+                <label for="provinciaSelect" class="col-12 mb-2 md:col-2 md:mb-0">Provincia</label>
+                <div class="col-12 md:col-10">
+                    <select id="provinciaSelect"
+                        class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-auto">
+                        <option value="">Selecciona una provincia</option>
+                    </select>
+                </div>
+            </div>
+    
+            <div class="field grid col-12 md:col-6">
+                <label for="municipioSelect" class="col-12 mb-2 md:col-2 md:mb-0">Municipio</label>
+                <div class="col-12 md:col-10">
+                    <select id="municipioSelect"
+                        class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-auto">
+                        <option value="">Selecciona un municipio</option>
+                    </select>
+                </div>
+            </div>
+    
+            <div class="col-12 md:col-6">
+                <button id="boton-filtrar"
+                class="bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700">Filtrar</button>
+                <button id="boton-limpiar"
+                class="bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700">Limpiar</button>
+            </div>
         </div>
-        
+            
+        <div class="grid grid-nogutter">
+            <div class="col-12 md:col-6 lg:col-6 xl:col-6">
+                <div class="box h-full">
+                    <div id="map"></div>
+                </div>
+            </div>
+            <div class="col-12 md:col-6 lg:col-6 xl:col-6 p-2">
+                <div class="box h-1/2">
+                    <div id="total-monumentos" class="box-header"></div>
+                    <div id="info"> </div>
+                    
+                </div>
+    
+                <div class="box h-1/2">
+                    <div class="box-header">Cantidad de monumentos por tipo</div>
+                    <div >
+                        <canvas id="myChart1" height="200"></canvas>
+                    </div>
+                </div>
+            </div>            
+        </div>
     </div>
+
+    <footer>
+        <p>Gino Jesús Quintana Angulo <i class="fas fa-copyright"></i> - Interfaces Gráficas y Entornos Virtuales</p>
+    </footer>
 
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
