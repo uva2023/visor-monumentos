@@ -79,7 +79,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
 
-            marker.bindPopup('<b>' + monumento.nombre + '</b><br>' + monumento.poblacion_municipio + ', ' + monumento.poblacion_provincia);
+            marker.bindPopup('<b>' + monumento.nombre + '</b><br>' + 
+            'Población: ' + monumento.poblacion_municipio + ', ' + monumento.poblacion_provincia + '<br>' +
+            'Coordenadas: ' + monumento.coordenadas_latitud + ', ' + monumento.coordenadas_longitud);
             marker.on('click', function () {
                 mostrarInformacionMonumento(monumento);
             });
