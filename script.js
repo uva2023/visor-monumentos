@@ -82,6 +82,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function cargarProvincias(provincias) {
         var provinciaSelect = document.getElementById("provinciaSelect");
 
+         // Agregar la opción "Selecciona un municipio"
+         var selectOption = document.createElement("option");
+         selectOption.value = "";
+         selectOption.textContent = "Selecciona una provincia";
+         provinciaSelect.appendChild(selectOption);
+
         provincias.results.forEach(function(provinciaData) {
             var provincia = provinciaData.provincia;
             var option = document.createElement("option");
@@ -336,7 +342,6 @@ function mostrarMonumentosNombres(monumentosData) {
         // Limpiar valores de los elementos de filtro
         const provinciaSelect = document.getElementById('provinciaSelect');
         provinciaSelect.innerHTML = '';
-
         provinciaSelect.value = '';
 
         const municipioSelect = document.getElementById('municipioSelect');
